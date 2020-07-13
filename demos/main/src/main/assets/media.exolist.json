@@ -3,8 +3,23 @@
     "name": "Lang RTMP Stream",
     "samples": [
       {
-        "name": "RTMP live stream",
+        "name": "SDK server http-flv",
+        "uri": "http://172.16.4.31:8080/live/sdk-test.flv",
+        "extension": ""
+      },
+      {
+        "name": "SDK server RTMP",
         "uri": "rtmp://172.16.4.31/live/sdk-test",
+        "extension": ""
+      },
+      {
+        "name": "WS http-flv",
+        "uri": "https://video-wsflv.langlive.com/live/1030898Y.flv",
+        "extension": ""
+      },
+      {
+        "name": "Akamai HLS",
+        "uri": "https://video-ws-ak-hls.lv-play.com/live/1030898Y/playlist.m3u8",
         "extension": ""
       }
     ]

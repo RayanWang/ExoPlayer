@@ -72,13 +72,13 @@ dependencies {
 //    implementation project(modulePrefix + 'library-ui')
     implementation 'com.google.android.exoplayer:exoplayer:2.11.5'
     implementation 'com.google.android.exoplayer:extension-rtmp:2.11.5'
-    withExtensionsImplementation project(path: modulePrefix + 'extension-av1')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-ffmpeg')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-flac')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-ima')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-opus')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-vp9')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-rtmp')
+//    withExtensionsImplementation project(path: modulePrefix + 'extension-av1')
+//    withExtensionsImplementation project(path: modulePrefix + 'extension-ffmpeg')
+//    withExtensionsImplementation project(path: modulePrefix + 'extension-flac')
+//    withExtensionsImplementation project(path: modulePrefix + 'extension-ima')
+//    withExtensionsImplementation project(path: modulePrefix + 'extension-opus')
+//    withExtensionsImplementation project(path: modulePrefix + 'extension-vp9')
+//    withExtensionsImplementation project(path: modulePrefix + 'extension-rtmp')
 }
 
 apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'
