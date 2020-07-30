@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory;
 import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
@@ -40,6 +41,10 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
+import okhttp3.Connection;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 /**
  * Placeholder application to facilitate overriding Application methods for debugging and testing.
@@ -52,6 +57,8 @@ public class DemoApplication extends Application {
   private static final String DOWNLOAD_ACTION_FILE = "actions";
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
+
+  private static final boolean VERBOSE = false;
 
   protected String userAgent;
 
@@ -70,9 +77,37 @@ public class DemoApplication extends Application {
 
   /** Returns a {@link DataSource.Factory}. */
   public DataSource.Factory buildDataSourceFactory() {
-    DefaultDataSourceFactory upstreamFactory =
-        new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
-    return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
+//    DefaultDataSourceFactory upstreamFactory =
+//        new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
+//    return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
+
+    OkHttpClient client = new OkHttpClient.Builder().addNetworkInterceptor(chain -> {
+      if (VERBOSE) Log.d(TAG, "Request intercepted");
+
+      // Socket keep alive
+      Connection connection = chain.connection();
+      if (connection != null) {
+        try {
+          if (!connection.socket().getKeepAlive()) {
+            Log.i(TAG, "Socket not keep alive, keep it alive now...");
+            connection.socket().setKeepAlive(true);
+          }
+        } catch (SocketException e) {
+          Log.e(TAG, e.toString());
+          e.printStackTrace();
+        }
+      }
+
+      // Customize the request
+//      Log.i(TAG, "Final url=" + chain.request().url());
+      if (VERBOSE) {
+        if (connection != null)
+          Log.d(TAG, "Socket keep alive=" + connection.socket().getKeepAlive());
+      }
+//      Log.i(TAG, "Request header info=\n" + chain.request().headers());
+      return chain.proceed(chain.request());
+    }).build();
+    return new OkHttpDataSourceFactory(client, userAgent);
   }
 
   /** Returns a {@link HttpDataSource.Factory}. */

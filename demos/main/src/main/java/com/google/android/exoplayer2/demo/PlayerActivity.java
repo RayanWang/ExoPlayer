@@ -20,6 +20,7 @@ import android.content.pm.PackageManager;
 import android.media.MediaDrm;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -74,10 +75,13 @@ import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
@@ -86,7 +90,8 @@ import java.net.CookiePolicy;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
-    implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
+    implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener,
+    BandwidthMeter.EventListener {
 
   // Activity extras.
 
@@ -355,6 +360,10 @@ public class PlayerActivity extends AppCompatActivity
         return;
       }
 
+      DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter.Builder(this)
+          .build();
+      bandwidthMeter.addEventListener(new Handler(), this);
+
       TrackSelection.Factory trackSelectionFactory;
       String abrAlgorithm = intent.getStringExtra(ABR_ALGORITHM_EXTRA);
       if (abrAlgorithm == null || ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
@@ -379,6 +388,7 @@ public class PlayerActivity extends AppCompatActivity
       player =
           new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
               .setTrackSelector(trackSelector)
+              .setBandwidthMeter(bandwidthMeter)
               .build();
       player.addListener(new PlayerEventListener());
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
@@ -688,13 +698,33 @@ public class PlayerActivity extends AppCompatActivity
     return false;
   }
 
+  @Override
+  public void onBandwidthSample(int elapsedMs, long bytesTransferred, long bitrateEstimate) {
+    Log.e("PlayerActivity", "[onBandwidthSample] elapsedMs=" + elapsedMs + ", bytesTransferred=" + bytesTransferred + ", bitrateEstimate=" + bitrateEstimate);
+  }
+
   private class PlayerEventListener implements Player.EventListener {
+
+    private int mBufferTimes;
+    private int mCurrentPlaybackState = Player.STATE_IDLE;
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
       if (playbackState == Player.STATE_ENDED) {
         showControls();
       }
+      if (playbackState == Player.STATE_IDLE) Log.e("PlayerActivity", "STATE_IDLE");
+      if (mCurrentPlaybackState == Player.STATE_READY &&
+          playbackState == Player.STATE_BUFFERING) {
+        Log.e("PlayerActivity", "STATE_BUFFERING");
+        ++mBufferTimes;
+        Log.e("PlayerActivity", "Buffering times=" + mBufferTimes);
+      }
+      if (playbackState == Player.STATE_READY) {
+        Log.e("PlayerActivity", "STATE_READY");
+      }
+      if (playbackState == Player.STATE_ENDED) Log.e("PlayerActivity", "STATE_ENDED");
+      mCurrentPlaybackState = playbackState;
       updateButtonVisibility();
     }
 

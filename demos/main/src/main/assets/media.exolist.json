@@ -18,9 +18,29 @@
         "extension": ""
       },
       {
-        "name": "Akamai HLS",
-        "uri": "https://video-ws-ak-hls.lv-play.com/live/1030898Y/playlist.m3u8",
+        "name": "WS-AK http-flv",
+        "uri": "http://video-ws2-ak.lv-play.com/live/1030898Y.flv",
         "extension": ""
+      },
+      {
+        "name": "WS hls",
+        "uri": "http://video-ws2-hls.lv-play.com/live/1030898Y/playlist.m3u8",
+        "extension": "m3u8"
+      },
+      {
+        "name": "WS hls test",
+        "uri": "http://210.61.206.134/publish-ws-ak.lv-play.com/live/1030898Y/playlist.m3u8",
+        "extension": "m3u8"
+      },
+      {
+        "name": "Akamai Lang show hls",
+        "uri": "https://video-ws-ak-hls.lv-play.com/live/1030898Y/playlist.m3u8?wsLhls=1",
+        "extension": "m3u8"
+      },
+      {
+        "name": "Akamai Lang play test",
+        "uri": "https://video-ws-ak-hls.lv-play.com/live/4443735G/playlist.m3u8?wsLhls=1",
+        "extension": "m3u8"
       }
     ]
   },
