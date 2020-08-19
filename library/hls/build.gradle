@@ -34,6 +34,23 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
+
+    libraryVariants.all { variant ->
+        variant.assemble.doLast {
+            variant.outputs.each { output ->
+                def outputFile = output.outputFile
+                if (outputFile != null) {
+                    def fileName = "${project.name}${variant.flavorName}_" + EXOPLAYER_VERSION
+                    def outputPath = "../../../SnailMediaDemo/libs"
+                    copy {
+                        from outputFile
+                        into outputPath
+                        rename { fileName + ".aar" }
+                    }
+                }
+            }
+        }
+    }
 }
 
 dependencies {
